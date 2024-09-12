@@ -30,7 +30,7 @@ export default function QrcodeScanner({ getValue } : Props){
             />} label="Multiple Scan" /> */}
             
             {/* {multiple ? "Multiple Scan" : "jajja"} */}
-            <Scanner allowMultiple={true} scanDelay={1000} onScan={handleScan} />
+            <Scanner allowMultiple={false} scanDelay={500} onScan={handleScan} />
             
         </>
     )

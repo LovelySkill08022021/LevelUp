@@ -14,11 +14,21 @@ interface Props extends PageProps {
     subject: Subject;
 }
 
+interface ModSubject {
+    id: number;
+    code: string;
+    title: string;
+    units_lec: string | number;
+    units_lab: string | number;
+}
+
 export default function EditSubject({ auth, subject_id, subject } : Props ) {
-    const { data, setData, patch, processing, errors, reset } = useForm({
+    const { data, setData, patch, processing, errors, reset } = useForm<ModSubject>({
         id: subject_id,
         code: subject?.code || '',
         title: subject?.title || '',
+        units_lec: subject?.units_lec >= 0 ? subject?.units_lec : '',
+        units_lab: subject?.units_lab >= 0 ? subject?.units_lab : ''
     });
 
     const submit: FormEventHandler = (e) => {
@@ -26,7 +36,7 @@ export default function EditSubject({ auth, subject_id, subject } : Props ) {
 
         patch('/subject/update', {
             onSuccess: () => {
-                reset();
+                reset('code', 'title', 'units_lab', 'units_lec');
             }
         });
     }
@@ -52,6 +62,16 @@ export default function EditSubject({ auth, subject_id, subject } : Props ) {
                                 <label htmlFor="title">Title</label>
                                 <input value={data.title} onChange={(e) => setData('title', e.target.value)} type="text" id='title' name='title' className='block w-1/2' />
                                 <InputError message={errors.title} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="units_lec">Units (Lecture)</label>
+                                <input value={data.units_lec} onChange={(e) => setData('units_lec', e.target.value)} type="text" id='units_lec' name='units_lec' className='block w-1/2' />
+                                <InputError message={errors.units_lec} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="units_lab">Units (Laboratory)</label>
+                                <input value={data.units_lab} onChange={(e) => setData('units_lab', e.target.value)} type="text" id='units_lab' name='units_lab' className='block w-1/2' />
+                                <InputError message={errors.units_lab} />
                             </div>
                             <div className='mb-3'>
                                 <Button type='submit' disabled={processing} variant='contained'>{(subject_id === 0 ? "Save" : "Update")}</Button>

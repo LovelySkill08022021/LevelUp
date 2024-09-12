@@ -119,6 +119,23 @@ export default function Authenticated({ user, header, children }: PropsWithChild
                         <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
+                        {user.user_type == 'faculty' && (
+                            <>
+                                <ResponsiveNavLink href={'/class'} active={route().current('class')}>
+                                    Class
+                                </ResponsiveNavLink>
+                                <ResponsiveNavLink href={'/subject'} active={route().current('subject')}>
+                                    Subject
+                                </ResponsiveNavLink>
+                            </>
+                        )}
+                        {user.user_type == 'student' && (
+                            <>
+                                <ResponsiveNavLink href={'/class'} active={route().current('class')}>
+                                    Class
+                                </ResponsiveNavLink>
+                            </>
+                        )}
                     </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200">

@@ -5,6 +5,7 @@ import type { PageProps, Class, Activity } from '@/types';
 import Layout from '../Layout';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
+import ActivityTable from './page-components/ActivityTable';
 
 interface ExActivity extends Activity {
     date: string;
@@ -25,12 +26,13 @@ export default function ActivityPage({ _class, activities, auth }: Props) {
         >
             <Layout _class={_class} active_tab='activities'>
                 <>
-                    <div className='mb-4'>
+                    <div className='mb-2'>
                         <Link href={`/class/${_class.id}/open/activity/0`}>
                             <Button variant='contained'>Create</Button>
                         </Link>
                     </div>
-                    <table className='table-auto'>
+                    <ActivityTable _class={_class} activities={activities} />
+                    {/* <table className='table-auto'>
                         <thead>
                             <tr>
                                 <th>Name</th>
@@ -58,7 +60,7 @@ export default function ActivityPage({ _class, activities, auth }: Props) {
                                 </tr>
                             ))}
                         </tbody>
-                    </table>
+                    </table> */}
                     <div>
 
                     </div>

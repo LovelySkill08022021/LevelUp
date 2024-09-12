@@ -14,6 +14,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
+use Exception;
 
 class ClassController extends Controller
 {
@@ -32,6 +33,8 @@ class ClassController extends Controller
             'subjects.id as subject_id',
             'subjects.code as subject_code',
             'subjects.title as subject_title',
+            'subjects.units_lec as subject_units_lec',
+            'subjects.units_lab as subject_units_lab',
             'users.id as user_id',
             'users.student_number as user_student_number',
             'users.last_name as user_last_name',
@@ -56,6 +59,8 @@ class ClassController extends Controller
                     'id' => $item->subject_id,
                     'code' => $item->subject_code,
                     'title' => $item->subject_title,
+                    'units_lec' => $item->subject_units_lec,
+                    'units_lab' => $item->subject_units_lab
                 ],
                 'faculty' => [
                     'id' => $item->user_id,
@@ -83,8 +88,8 @@ class ClassController extends Controller
     }
 
     public function edit(int $class_id){
-        $class = $this->getClass()->where('id', $class_id);
-
+        $class = $this->getClass()->where('id', $class_id)->first();
+        // dd($class);
         // $class = AppClass::leftJoin('subjects', 'app_classes.subject_id', 'subjects.id')
         // ->where('app_classes.id', $class_id)
         // ->select(
@@ -110,7 +115,7 @@ class ClassController extends Controller
         // });
         
         $subjects = Subject::all();
-        $class = sizeof($class) != 0 ? $class[0] : null;
+        // $class = sizeof($class) != 0 ? $class[0] : null;
         return Inertia::render("Class/Edit", [
             "class_id" => $class_id,
             "_class" => $class,
@@ -261,7 +266,7 @@ class ClassController extends Controller
                 'max_score' => $item->max_score,
                 'type' => $item->type,
                 'date' => date("M d, Y", strtotime($item->created_at)),
-                'time' => date("h:m A", strtotime($item->created_at)),
+                'time' => date("h:i A", strtotime($item->created_at)),
                 'class' => [
                     'id' => $item->class_id,
                     'name' => $item->class_name,
@@ -335,9 +340,17 @@ class ClassController extends Controller
 
     public function scanPage(int $class_id,int $activity_id){
         $class = AppClass::find($class_id);
+        
+        $students = User::leftJoin('class_members', 'users.id', 'class_members.student_id')
+        ->where([['users.user_type', 'student'],['class_members.class_id', $class_id],['class_members.accepted', 1]])
+        ->get();
+
+        // dd($students);
+
         $activity = Activity::find($activity_id);
         return Inertia::render('Class/Open/Activity/Scan/Page', [
             '_class' => $class,
+            'students' => $students,
             'activity' => $activity,
         ]);
     }
@@ -389,8 +402,8 @@ class ClassController extends Controller
     }
 
     public function studentsPage(int $class_id){
-        $class = AppClass::find($class_id);
-        
+        $class = $this->getClass()->where('id', $class_id)->first();
+        // dd($class);
         $pending_students = ClassMember::leftJoin('users', 'class_members.student_id', 'users.id')
         ->where([['class_members.class_id', $class_id],['accepted', 0]])
         ->select(
@@ -414,6 +427,7 @@ class ClassController extends Controller
         });
 
         $students = ClassMember::leftJoin('users', 'class_members.student_id', 'users.id')
+        ->orderBy('users.last_name', 'asc')
         ->where([['class_members.class_id', $class_id],['accepted', 1]])
         ->select(
             'users.*'
@@ -427,6 +441,32 @@ class ClassController extends Controller
         ]);
     }
 
+    public function getJoinPendingStudents(Request $request){
+        $pending_students = ClassMember::leftJoin('users', 'class_members.student_id', 'users.id')
+        ->where([['class_members.class_id', $request->class_id],['accepted', 0]])
+        ->select(
+            'users.*',
+            'class_members.id as cm_id',
+            'class_members.created_at as cm_created_at'
+        )
+        ->get()
+        ->map(function($item){
+            return [
+                'cm_id' => $item->cm_id,
+                'id' => $item->id,
+                'student_number' => $item->student_number,
+                'last_name' => $item->last_name,
+                'first_name' => $item->first_name,
+                'middle_name' => $item->middle_name,
+                'course' => $item->course,
+                'date' => date("M d, Y", strtotime($item->cm_created_at)),
+                'time' => date("h:m A", strtotime($item->cm_created_at))
+            ];
+        });
+
+        return $pending_students;
+    }
+
     public function joinClass(Request $request){
 
         $class_member = new ClassMember;
@@ -435,7 +475,7 @@ class ClassController extends Controller
         $class_member->accepted = 0;
         $result = $class_member->save();
 
-        $result = true;
+        // $result = true;
 
         if(!$result){
             return back()->withErrors([
@@ -445,6 +485,37 @@ class ClassController extends Controller
         }
         
         return redirect('/class');
+    }
+
+    public function joinClassRespond(Request $request){
+        if($request->type == "a"){
+            $member = ClassMember::find($request->student['cm_id']);
+            $member->accepted = 1;
+            $result = $member->save();
+
+            if($result){
+                return [
+                    "status" => 'success',
+                    "message" => "Student accepted."
+                ];
+            }
+        } else if($request->type == "r"){
+            $member = ClassMember::find($request->student['cm_id']);
+            $member->accepted = 3;
+            $result = $member->save();
+
+            if($result){
+                return [
+                    "status" => 'success',
+                    "message" => "Student rejected."
+                ];
+            }
+        }
+
+        return [
+            "status" => 'error',
+            "message" => "Something went wrong. Please try again."
+        ];
     }
 
     public function checkMembership(Request $request){
@@ -463,6 +534,7 @@ class ClassController extends Controller
         // dd($class);
         $students = ClassMember::leftJoin('users', 'class_members.student_id', 'users.id')
         ->where([['class_members.class_id', $class_id],['accepted', 1]])
+        ->orderBy('users.last_name', 'asc')
         ->select(
             'users.id',
             'users.student_number',

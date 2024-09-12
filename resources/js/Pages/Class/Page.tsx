@@ -23,14 +23,20 @@ export default function ClassPage({ auth, classes } : Props) {
             <ContentLayout>
                     <Card>
                         {auth.user.user_type == 'faculty' && 
-                            <div className="mb-8">
+                            <div className="mb-2">
                                 <Link href={`/class/${0}`}>
                                     <Button disableElevation variant='contained'>New</Button>
                                 </Link> 
                             </div>
                         }
                         <div>
-                            {classes.map((_class: Class) => (
+                        {auth.user.user_type == 'student' ? 
+                            <StudentClass classes={classes} />
+                            :
+                            <ClassBlock classes={classes} />
+                        }
+                            
+                            {/* {classes.map((_class: Class) => (
                                 <div key={_class.id}>
                                     {auth.user.user_type == 'student' ? 
                                         <StudentClass _class={_class} />
@@ -38,7 +44,7 @@ export default function ClassPage({ auth, classes } : Props) {
                                         <ClassBlock _class={_class} />
                                     }
                                 </div>
-                            ))}
+                            ))} */}
                         </div>
                     </Card>
             </ContentLayout>

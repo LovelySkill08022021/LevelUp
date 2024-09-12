@@ -14,10 +14,11 @@ import FormDialogAutomatic from '@/Components/system/FormDialogAutomatic';
 interface Props extends PageProps {
     _class: Class;
     activity: Activity;
+    students: User[];
 }
 
 
-export default function ActivityPage({ _class, activity, auth }: Props) {
+export default function ActivityPage({ _class, activity, students, auth }: Props) {
 
     const [open_form, setOpenForm] = useState<boolean>(false);
     const [student, setStudent] = useState<User>();
@@ -122,6 +123,8 @@ export default function ActivityPage({ _class, activity, auth }: Props) {
         >
             <Layout _class={_class} active_tab={'activities'}>
                 <>  
+                    <div className='font-bold text-lg'>Scan QR Code</div>
+                    <div className="text-gray-500 text-md mb-3">{activity.name}</div>
                     <div className='flex gap-5'>
                         <div className="w-1/4 overflow-hidden">
                             <QrcodeScanner getValue={getValue} />
@@ -154,7 +157,12 @@ export default function ActivityPage({ _class, activity, auth }: Props) {
                             >
                                 <div className="mb-3">
                                     <label htmlFor="student_number">Student Number</label>
-                                    <input required value={data.student_number} onChange={(e) => setData('student_number', e.target.value)} type="text" name='student_number' className='w-full' placeholder='Student Number' />
+                                    <input required value={data.student_number} onChange={(e) => setData('student_number', e.target.value)} type="text" name='student_number' className='w-full' placeholder='Student Number' list='class_student' />
+                                    <datalist id='class_student'>
+                                        {students.map((student) => {
+                                            return <option value={student.student_number}>{student.last_name}, {student.first_name}</option>
+                                        })}
+                                    </datalist>
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="score">Score <small>(max: {activity.max_score})</small></label>

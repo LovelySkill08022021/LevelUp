@@ -30,12 +30,16 @@
         "@emotion/styled": "^11.13.0",
         "@mui/icons-material": "^5.16.7",
         "@mui/material": "^5.16.7",
+        "@mui/styled-engine-sc": "^6.1.0",
+        "@mui/x-data-grid": "^7.16.0",
         "@yudiel/react-qr-scanner": "^2.0.8",
         "highcharts": "^11.4.7",
         "highcharts-react-official": "^3.2.1",
         "jspdf": "^2.5.1",
         "jspdf-autotable": "^3.8.3",
         "react-export-table-to-excel": "^1.0.6",
-        "react-to-pdf": "^1.0.1"
+        "react-qr-code": "^2.0.15",
+        "react-to-pdf": "^1.0.1",
+        "styled-components": "^6.1.13"
     }
 }

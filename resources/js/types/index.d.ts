@@ -33,6 +33,8 @@ export interface Subject {
     id: number;
     code: string;
     title: string;
+    units_lec: number;
+    units_lab: number;
 }
 
 export interface Activity {

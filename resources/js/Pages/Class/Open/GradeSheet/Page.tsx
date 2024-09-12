@@ -140,7 +140,7 @@ export default function ActivityPage({ _class, student_collection, auth }: Props
                                             Course Code: <span className='text-blue-800'>{_class.subject.code}</span>
                                         </td>
                                         <td>
-                                            Unit: <span className='text-blue-800'><i>Unit</i></span>
+                                            Unit: <span className='text-blue-800'>{_class.subject.units_lec + _class.subject.units_lab}</span>
                                         </td>
                                         <td>
                                             Section: <span className='text-blue-800'><Course course={_class.course} /> {_class.year_level}{_class.section}</span>

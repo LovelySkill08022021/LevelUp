@@ -36,12 +36,16 @@ class SubjectController extends Controller
         $request->validate([
             'code' => $code_validation,
             'title' => 'required|string|max:255',
+            'units_lec' => 'required|integer|min:0',
+            'units_lab' => 'required|integer|min:0',
         ]);
         
         if($request->id == 0){
             $subject = new Subject;
             $subject->code = $request->code;
             $subject->title = $request->title;
+            $subject->units_lec = $request->units_lec;
+            $subject->units_lab = $request->units_lab;
             $result = $subject->save();
             $message = $result ? "Created subject" : "Failed to save subject";
             
@@ -51,6 +55,8 @@ class SubjectController extends Controller
         $subject = Subject::find($request->id);
         $subject->code = $request->code;
         $subject->title = $request->title;
+        $subject->units_lec = $request->units_lec;
+        $subject->units_lab = $request->units_lab;
         $result = $subject->save();
         return redirect("/subject");
 

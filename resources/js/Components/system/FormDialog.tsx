@@ -6,6 +6,8 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 interface Props {
     size?: any;
@@ -35,6 +37,7 @@ export default function FormDialog({size='md', dialog_button, title, description
             </span>
             <Dialog
                 fullWidth={true}
+                fullScreen={size == 'full' ? true : false}
                 maxWidth={size}
                 open={open}
                 onClose={handleClose}
@@ -53,7 +56,24 @@ export default function FormDialog({size='md', dialog_button, title, description
                     },
                 }}
             >
-                <DialogTitle>{title}</DialogTitle>
+                <DialogTitle>
+                    <div className="flex justify-between items-center">
+                        <div className='text-end'>
+                            {title}
+                        </div>
+                        <div className='text-end'>
+                            <IconButton
+                                edge="start"
+                                color="inherit"
+                                onClick={handleClose}
+                                aria-label="close"
+                                >
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
+                    </div>
+
+                </DialogTitle>
                 <DialogContent>
                     <DialogContentText>
                         {description}

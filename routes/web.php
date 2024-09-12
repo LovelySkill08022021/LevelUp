@@ -38,15 +38,18 @@ Route::middleware('auth')->group(function () {
         Route::get('/class/{class_id}/open/activity/{activity_id}/scan', [ClassController::class, 'scanPage'])->name('class.activity.scan');
         
         Route::get('/class/{class_id}/open/students', [ClassController::class, 'studentsPage'])->name('class.students.page');
-
+        
         Route::post('/class/open/activity/scan/find_student', [ClassController::class, 'findStudent'])->name('class.activity.scan.find_student');
         Route::post('/class/open/activity/scan/save_score', [ClassController::class, 'saveScore'])->name('class.activity.scan.save_score');
         Route::post('/class/activity/update', [ClassController::class, 'updateActivity'])->name('class.activity.update');
         Route::patch('/class/update', [ClassController::class, 'update'])->name('class.update');
         Route::get('/class/{class_id}/gradingsystem', [ClassController::class, 'gradingSystem'])->name('class.gradingsystem');
         Route::patch('/class/{class_id}/gradingsystem/patch', [ClassController::class, 'gradingSystemPatch'])->name('class.gradingsystem.patch');
-        Route::post('/subject/gradingsystem/usesubjectgradingsystem', [ClassController::class, 'useSubjectGradingSystem'])->name('class.useSubjectGradingSystem');
+
+        Route::post('/class/student/join/pending', [ClassController::class, 'getJoinPendingStudents'])->name('class.student.join.pending');
+        Route::post('/class/student/join/respond', [ClassController::class, 'joinClassRespond'])->name('class.student.join.respond');
         
+        Route::post('/subject/gradingsystem/usesubjectgradingsystem', [ClassController::class, 'useSubjectGradingSystem'])->name('class.useSubjectGradingSystem');
         Route::get('/class/{class_id}/open/gradesheet', [ClassController::class, 'gradesheetPage'])->name('class.gradesheet');
 
         Route::get('/subject', [SubjectController::class, 'index'])->name('subject');
