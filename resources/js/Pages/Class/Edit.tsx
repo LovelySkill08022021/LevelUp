@@ -9,6 +9,8 @@ import { FormEventHandler } from 'react';
 import axios from 'axios';
 import InputError from '@/Components/InputError';
 import { courses } from '@/lib/data';
+import TextField from '@mui/material/TextField';
+import SaveIcon from '@mui/icons-material/Save';
 
 interface Props extends PageProps {
     class_id: number;
@@ -16,7 +18,7 @@ interface Props extends PageProps {
     subjects: Subject[];
 }
 
-export default function EditClass({ auth, class_id, _class, subjects } : Props ) {
+export default function EditClass({ auth, class_id, _class, subjects }: Props) {
     const { data, setData, patch, processing, errors, reset } = useForm({
         id: class_id,
         name: _class?.name || "",
@@ -37,7 +39,7 @@ export default function EditClass({ auth, class_id, _class, subjects } : Props )
             }
         });
     }
-    
+
     return (
         <AuthenticatedLayout user={auth.user}>
             <Head title="Edit Class" />
@@ -55,7 +57,7 @@ export default function EditClass({ auth, class_id, _class, subjects } : Props )
                                 <input value={data.name} onChange={(e) => setData('name', e.target.value)} type="text" id='name' name='name' className='block w-1/2' />
                                 <InputError message={errors.name} />
                             </div>
-                            
+
                             <div className="mb-3">
                                 <label htmlFor="semester">Semester</label>
                                 <select name="semester" id="semester" value={data.semester} onChange={(e) => setData('semester', Number(e.target.value))} className='block w-1/2'>
@@ -122,7 +124,7 @@ export default function EditClass({ auth, class_id, _class, subjects } : Props )
                                 <InputError message={errors.subject} />
                             </div>
                             <div className='mb-3'>
-                                <Button type='submit' disabled={processing} variant='contained'>{(class_id === 0 ? "Save" : "Update")}</Button>
+                                <Button startIcon={<SaveIcon />} type='submit' disabled={processing} variant='contained'>{(class_id === 0 ? "Save" : "Update")}</Button>
                             </div>
                         </form>
                     </div>

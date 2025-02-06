@@ -10,6 +10,8 @@ use App\Models\GradingSystem;
 use App\Models\ClassMember;
 use App\Models\Activity;
 use App\Models\Score;
+use App\Models\CreditScore;
+use App\Models\CreditScoreHistory;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -313,6 +315,7 @@ class ClassController extends Controller
 
         $success = null;
         
+        
         if($request->id == 0){
             $Activity = new Activity;
             $Activity->class_id = $request->class;
@@ -332,10 +335,14 @@ class ClassController extends Controller
         }
 
         if($success){
-            return redirect("/class/$request->class/open"); 
+            return back();
+            // return redirect("/class/$request->class/open/activities");
         }
 
-        return redirect("/class/$request->class/open/activity/$request->id"); 
+        // return redirect("/class/$request->class/open/activity/$request->id");
+        return back()->withErrors([
+            "message" => "Error"
+        ]);
     }
 
     public function scanPage(int $class_id,int $activity_id){
@@ -385,7 +392,7 @@ class ClassController extends Controller
         $student_has_score = Score::where([['activity_id', $request->activity_id],['student_id', $student[0]->id]])->exists();
         
         if($student_has_score){
-            return "The student already have score in the activity.";
+            return "The student already have a score in the activity.";
         }
         
         $score = new Score;
@@ -439,6 +446,178 @@ class ClassController extends Controller
             'pending_students' => $pending_students,
             'students' => $students
         ]);
+    }
+
+    public function studentClassProfile(int $class_id, int $student_id){
+        $class = $this->getClass()->where('id', $class_id)->first();
+        $student = User::find($student_id);
+        $credit_score = CreditScore::where('student_id', $student_id)->first();
+        
+        $credit_score_info = null;
+        if($credit_score != null){
+            $credit_score_history = CreditScoreHistory::where('credit_score_id', $credit_score->id)
+            ->get()
+            ->map(function($item){
+                return [
+                    "id" => $item->id,
+                    "points" => $item->points,
+                    "mode" => $item->mode,
+                    "date" => date('M d, Y h:i A', strtotime($item->created_at)),
+                    "date_removed" => date('M d, Y h:i A', strtotime($item->updated_at)),
+                ];
+            });
+
+            $credit_score_info = [
+                "id" => $credit_score->id,
+                "student_id" => $credit_score->student_id,
+                "points" => $credit_score->points,
+                'history' => $credit_score_history
+            ];
+        }
+
+        // dd($credit_score_info);
+
+        return Inertia::render('Class/Open/Student/ClassProfile/Page', [
+            '_class' => $class,
+            'student' => $student,
+            'credit_score_info' => $credit_score_info
+        ]);
+    }
+
+    public function addCreditScore(Request $request){
+        // dd($request->all());
+        $status = DB::transaction(function() use ($request){
+            $credit_score = CreditScore::where('student_id', $request->student_id)->first();
+            $credit_score_status = "";
+            
+            if($credit_score == null){
+                $credit_score = new CreditScore;
+                $credit_score->student_id = $request->student_id;
+                $credit_score->points = $request->points;
+                $credit_score_status = $credit_score->save();
+            } else {
+                $credit_score_status = $credit_score->increment('points', $request->points);
+            }
+
+            $history_status = "";
+            if($credit_score_status){ 
+                $history = new CreditScoreHistory;
+                $history->credit_score_id = $credit_score->id;
+                $history->points = $request->points;
+                $history->mode = 'add';
+                $history_status = $history->save();
+            }
+
+            if($history_status && $credit_score_status){
+                return true;
+            }
+
+            return false;
+        });
+
+        if($status){
+            return back();
+        }
+
+        return back()->withErrors([
+            "message" => "Failed to add points, please try again."
+        ]);
+    }
+
+    public function removeCreditScore(Request $request){
+        
+        $status = DB::transaction(function() use ($request){
+            $history = CreditScoreHistory::find($request->history_id);
+            $history->mode = 'deduct';
+            $history_result = $history->save();
+    
+            $credit_score = CreditScore::where('id', $history->credit_score_id)->first();
+            $credit_score_result = $credit_score->decrement('points', $history->points);
+            
+            if($history_result && $credit_score_result){
+                return true;
+            }
+
+            return false;
+        });
+
+        if($status){
+            return back();
+        }
+
+        return back()->withErrors([
+            "message" => "Failed to remove points, please try again."
+        ]);
+    }
+
+    public function addStudentsPage(int $class_id){
+        $class = $this->getClass()->where('id', $class_id)->first();
+        return Inertia::render("Class/Open/Student/AddStudentPage", [
+            '_class' => $class,
+        ]);
+    }
+
+    public function addStudents(Request $request){
+        $student_numbers_for_save = $request->student_numbers_for_save;
+        $class_id = $request->class_id;
+        $students_accepted = [];
+        $already_added = [];
+        $failed_to_save = [];
+        $not_found_students = [];
+        $newly_added = [];
+
+        foreach ($student_numbers_for_save as $student_number) {
+
+            $user = User::where('student_number', $student_number)->first();
+            
+            if($user){
+                $class_member_check = ClassMember::where([['student_id', $user->id],['class_id', $class_id]])->first();
+                
+                if($class_member_check){
+                    if($class_member_check->accepted == 1){
+                        array_push($already_added, "$user->student_number - $user->last_name, $user->first_name");
+                        continue;
+                    } else if ($class_member_check->accepted == 0 || $class_member_check->accepted == 3) {
+                        $class_member_check->accepted = 1;
+                        $result = $class_member_check->save();
+                        
+                        if(!$result){
+                            array_push($failed_to_save, "$student_number - $user->last_name, $user->first_name");
+                            continue;
+                        }
+                        
+                        array_push($students_accepted, "$student_number - $user->last_name, $user->first_name");
+                        continue;
+                    }
+                }
+
+                $new_class_member = new ClassMember;
+                $new_class_member->student_id = $user->id;
+                $new_class_member->class_id = $class_id;
+                $new_class_member->accepted = 1;
+                $result = $new_class_member->save();
+
+                if(!$result){
+                   array_push($failed_to_save, "$student_number - $user->last_name, $user->first_name");
+                   continue;
+                }
+                
+                array_push($newly_added, "$student_number - $user->last_name, $user->first_name");
+                
+                
+            } else {
+                array_push($not_found_students, $student_number);
+            }
+        }
+
+        return [
+            "newly_added" => $newly_added,
+            "students_accepted" => $students_accepted,
+            "failed_to_save" => $failed_to_save,
+            "not_found_students" => $not_found_students,
+            "already_added" => $already_added
+        ];
+
     }
 
     public function getJoinPendingStudents(Request $request){

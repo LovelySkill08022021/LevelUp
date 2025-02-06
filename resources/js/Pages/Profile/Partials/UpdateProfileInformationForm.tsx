@@ -76,7 +76,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
 
                     <InputError className="mt-2" message={errors.last_name} />
                 </div>
-                
+
                 <div>
                     <InputLabel htmlFor="first_name" value="First Name" />
 
@@ -91,7 +91,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
 
                     <InputError className="mt-2" message={errors.first_name} />
                 </div>
-                
+
                 <div>
                     <InputLabel htmlFor="middle_name" value="Middle Name" />
 
@@ -106,7 +106,7 @@ export default function UpdateProfileInformation({ mustVerifyEmail, status, clas
 
                     <InputError className="mt-2" message={errors.middle_name} />
                 </div>
-                
+
 
                 <div>
                     <InputLabel htmlFor="email" value="Email" />

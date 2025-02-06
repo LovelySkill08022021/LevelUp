@@ -19,7 +19,7 @@ interface Props {
     onSubmitFunction?: (formJson: any) => void;
 }
 
-export default function FormDialog({size='md', dialog_button, title, description, children, submit_label, onSubmitFunction } : Props) {
+export default function FormDialog({ size = 'md', dialog_button, title, description, children, submit_label, onSubmitFunction }: Props) {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -48,10 +48,10 @@ export default function FormDialog({size='md', dialog_button, title, description
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries((formData as any).entries());
                         // const email = formJson.email;
-                        if(onSubmitFunction){
+                        if (onSubmitFunction) {
                             onSubmitFunction(formJson);
                         }
-                        
+
                         handleClose();
                     },
                 }}
@@ -67,7 +67,7 @@ export default function FormDialog({size='md', dialog_button, title, description
                                 color="inherit"
                                 onClick={handleClose}
                                 aria-label="close"
-                                >
+                            >
                                 <CloseIcon />
                             </IconButton>
                         </div>
@@ -81,8 +81,8 @@ export default function FormDialog({size='md', dialog_button, title, description
                     {children}
                 </DialogContent>
                 <DialogActions>
-                    
-                    
+
+
                     {onSubmitFunction && (
                         <>
                             <Button onClick={handleClose}>Cancel</Button>

@@ -9,6 +9,8 @@ import QrcodeScanner from '@/Components/system/QrcodeScanner';
 import { useState } from 'react';
 import axios from 'axios';
 import FormDialogAutomatic from '@/Components/system/FormDialogAutomatic';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
+
 // import Speech from '@/Components/system/Speech';
 
 interface Props extends PageProps {
@@ -22,8 +24,6 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
 
     const [open_form, setOpenForm] = useState<boolean>(false);
     const [student, setStudent] = useState<User>();
-    const [student_has_found, setStudentHasFound] = useState<boolean>(true);
-    const [student_has_score, setStudentHasScore] = useState<boolean>(false);
     const [qr_code_value, setQrCodeValue] = useState<string>("");
     const [score_warning, setScoreWarning] = useState<string>("");
     
@@ -35,24 +35,17 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
         axios.post(route('class.activity.scan.find_student'), data)
         .then((response) => {
             if(response.data == "no_student"){
-                
-                setStudentHasFound(false);
-                setTimeout(() => {
-                    setStudentHasFound(true);
-                }, 10000);
+                enqueueSnackbar(`No student found. It is possible that the student with a ${qr_code_value} student number is not yet registered`, {variant: "warning"});
+
                 return;
             }
             
             if(response.data == "student_has_score"){
-                setStudentHasScore(true);
-                setTimeout(() => {
-                    setStudentHasScore(false);
-                }, 6000);
+                enqueueSnackbar(`The student already have a score in the activity ${activity.name}.`, {variant: "warning"});
+                
                 return;
             }
 
-
-                // alert(open_form)
             setStudent(response.data);
             setOpenForm(false);
             setTimeout(() => {
@@ -74,7 +67,7 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
         setData('student_number', std.student_number);
     }
 
-    function initSetScore(score: number){
+    function initSetScore(score: any){
         if(score <= activity.max_score){
             // setScoreWarning("The score you have entered has exceeded the maximum score for this activity.");
             setScoreWarning("");
@@ -84,7 +77,7 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
 
     const {data, setData, reset} = useForm({
         student_number: "",
-        score: 0,
+        score: "",
         activity_id: activity.id
     });
 
@@ -106,7 +99,9 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
                     return;
                 }
 
-                alert(response.data);
+
+                // alert(response.data);
+                enqueueSnackbar(response.data, {variant: "info"});
                 setOpenForm(false);
                 setTimeout(() => {
                     setOpenForm(true);
@@ -123,13 +118,16 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
         >
             <Layout _class={_class} active_tab={'activities'}>
                 <>  
+                    <SnackbarProvider maxSnack={3} autoHideDuration={6000} />
                     <div className='font-bold text-lg'>Scan QR Code</div>
                     <div className="text-gray-500 text-md mb-3">{activity.name}</div>
-                    <div className='flex gap-5'>
-                        <div className="w-1/4 overflow-hidden">
-                            <QrcodeScanner getValue={getValue} />
+                    <div className='flex flex-col items-center gap-5 lg:flex-row lg:items-start'>
+                        <div className="sm:w-3/4 md:w-1/2 lg:w-1/4 overflow-hidden rounded-xl">
+                            <div>
+                                <QrcodeScanner getValue={getValue} />
+                            </div>
                         </div>                    
-                        <div>
+                        <div className='mt-10 text-center lg:mt-0'>
                             <FormDialogAutomatic
                                 isopen={open_form}
                                 title={
@@ -166,7 +164,7 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
                                 </div>
                                 <div className="mb-3">
                                     <label htmlFor="score">Score <small>(max: {activity.max_score})</small></label>
-                                    <input required value={data.score} autoFocus onChange={(e) => initSetScore(Number(e.target.value))} type="text" name='score' className='w-full' placeholder='Score' />
+                                    <input required value={data.score} autoFocus onChange={(e) => initSetScore(e.target.value)} type="number" name='score' className='w-full' placeholder='Score' />
                                     {score_warning && 
                                         <Alert severity='warning'>{score_warning}</Alert>
                                     }
@@ -181,16 +179,6 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
                                         {student.student_number}
                                     </div>
                                 </>
-                            }
-                            {!student_has_found && 
-                                <Alert severity='warning'>
-                                    No student found. It is possible that the student with a <b>{qr_code_value}</b> student number is not yet registered.
-                                </Alert>
-                            }
-                            {student_has_score && 
-                                <Alert severity='warning'>
-                                    The student already have score in the activity <b>{activity.name}</b>.
-                                </Alert>
                             }
                         </div>
 

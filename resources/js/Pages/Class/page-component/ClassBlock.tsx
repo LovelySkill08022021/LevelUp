@@ -5,8 +5,13 @@ import axios from 'axios'
 import { Link, router, useForm } from '@inertiajs/react'
 import Menu from '@/Components/system/Menu'
 import Course from '@/Components/system/Course'
-import MoreVertIcon from '@mui/icons-material/MoreVert';
 import IconButton from '@mui/material/IconButton';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+import ImportantDevicesRoundedIcon from '@mui/icons-material/ImportantDevicesRounded';
+import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
+
 import {
     DataGrid,
     GridColDef,
@@ -27,18 +32,18 @@ export default function ClassBlock({ classes }: { classes: Class[] }) {
     function openClass(params: GridRowParams){
         console.log(params.row.id);
         // location.href = `/class/${params.row.id}/open`;
-        router.visit(`/class/${params.row.id}/open`, {
+        router.visit(`/class/${params.row.id}/open/activities`, {
             method: 'get'
           })
     }
 
     const columns: GridColDef[] = [
-        { field: 'name', headerName: 'Name', width: 230 },
-        { field: 'semester', headerName: 'Semester', width: 130 },
-        { field: 'school_year', headerName: 'School Year', width: 150 },
-        { field: 'course', headerName: 'Course', width: 130 },
-        { field: 'subject', headerName: 'Subject', width: 400 },
-        { field: 'action', headerName: 'Action', width: 70, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
+        { field: 'name', headerName: 'Name', minWidth: 230 },
+        { field: 'semester', headerName: 'Semester', flex: 0, minWidth: 140 },
+        { field: 'school_year', headerName: 'School Year', flex: 0, minWidth: 150 },
+        { field: 'course', headerName: 'Course', flex: 0, minWidth: 120 },
+        { field: 'subject', headerName: 'Subject', flex: 1, minWidth: 400 },
+        { field: 'action', headerName: '', flex: 100, minWidth: 70, headerAlign: 'right', align: 'right', disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
             return (
                 <Menu
                     buttonlabel={
@@ -47,8 +52,9 @@ export default function ClassBlock({ classes }: { classes: Class[] }) {
                         </IconButton>
                     }
                     menuitems={[
-                        {label: "Edit", link: `/class/${row.id}`},
-                        {label: "Grading System", link: `/class/${row.id}/gradingsystem`},
+                        {label: "Edit", link: `/class/${row.id}`, icon: <EditIcon fontSize='small' />},
+                        {label: "Grading System", link: `/class/${row.id}/gradingsystem`, icon: <StarRoundedIcon fontSize='small' />},
+                        {label: "Grade Sheet", link: `/class/${row.id}/open/gradesheet`, icon: <FolderSpecialRoundedIcon fontSize='small' />},
                     ]}
                 />
             )

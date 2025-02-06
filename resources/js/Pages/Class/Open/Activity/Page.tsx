@@ -6,6 +6,8 @@ import Layout from '../Layout';
 import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import ActivityTable from './page-components/ActivityTable';
+import SearchInput from '@/Components/system/SearchInput';
+import { useState } from 'react';
 
 interface ExActivity extends Activity {
     date: string;
@@ -20,18 +22,33 @@ interface Props extends PageProps {
 
 export default function ActivityPage({ _class, activities, auth }: Props) {
 
+    const [activity_list, setActivityList] = useState<ExActivity[]>(activities);
+
+    function searchActivity(e: any) {
+        setActivityList(activities.filter((activity: ExActivity) => {
+            return activity.name.toLowerCase().includes(e.target.value.toLowerCase())
+                || activity.type.toLowerCase().includes(e.target.value.toLowerCase())
+                || activity.max_score.toString().includes(e.target.value.toLowerCase());
+        }));
+    }
+
     return (
         <AuthenticatedLayout
             user={auth.user}
         >
             <Layout _class={_class} active_tab='activities'>
                 <>
-                    <div className='mb-2'>
-                        <Link href={`/class/${_class.id}/open/activity/0`}>
-                            <Button variant='contained'>Create</Button>
-                        </Link>
+                    <div className='mb-2 flex items-center w-full'>
+                        <div className='w-1/4'>
+                            <Link href={`/class/${_class.id}/open/activity/0`}>
+                                <Button variant='contained'>Create</Button>
+                            </Link>
+                        </div>
+                        <div className='w-1/2'>
+                            <SearchInput onChange={searchActivity} placeholder='Search Activity' />
+                        </div>
                     </div>
-                    <ActivityTable _class={_class} activities={activities} />
+                    <ActivityTable _class={_class} activities={activity_list} />
                     {/* <table className='table-auto'>
                         <thead>
                             <tr>
