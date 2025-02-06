@@ -7,6 +7,7 @@ import ContentLayout from '@/Components/system/ContentLayout';
 import ClassBlock from './page-component/ClassBlock'
 import type { Class } from '@/types'
 import StudentClass from './page-component/StudentClass';
+import AddIcon from '@mui/icons-material/Add';
 
 interface Props extends PageProps {
     classes: Class[];
@@ -25,7 +26,7 @@ export default function ClassPage({ auth, classes } : Props) {
                         {auth.user.user_type == 'faculty' && 
                             <div className="mb-2">
                                 <Link href={`/class/${0}`}>
-                                    <Button disableElevation variant='contained'>New</Button>
+                                    <Button startIcon={<AddIcon />} disableElevation variant='contained'>New</Button>
                                 </Link> 
                             </div>
                         }

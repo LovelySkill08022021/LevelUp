@@ -6,117 +6,126 @@ import { Class, PageProps, User } from '@/types';
 import Alert from '@mui/material/Alert';
 import Course from '@/Components/system/Course';
 import FormDialog from '@/Components/system/FormDialog';
+import ColorProvider from '@/Components/system/ColorProvider';
 import Badge from '@mui/material/Badge';
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import GroupAddRoundedIcon from '@mui/icons-material/GroupAddRounded';
 import PendingStudent from './Components/PendingStudent';
 import IconButton from '@mui/material/IconButton';
+import InputBase from '@mui/material/InputBase';
+import Divider from '@mui/material/Divider';
+import MenuIcon from '@mui/icons-material/Menu';
+import DirectionsIcon from '@mui/icons-material/Directions';
+
 import axios from 'axios';
 import QRCode from "react-qr-code";
+import StudentsTable from './Components/StudentsTable';
+import SearchInput from '@/Components/system/SearchInput';
+import { Link } from '@inertiajs/react';
 
 interface ExtUser extends User {
-  cm_id: number;
-  date: string;
-  time: string;
+	cm_id: number;
+	date: string;
+	time: string;
 }
 
 interface Props extends PageProps {
-  _class: Class;
-  pending_students: ExtUser[];
-  students: User[];
+	_class: Class;
+	pending_students: ExtUser[];
+	students: User[];
 }
 
 export default function StudentsPage({ _class, pending_students, students, auth }: Props) {
 
-  const [pending_students_state, setPendingStudentState] = useState<ExtUser[]>();
+	const [student_list, setStudentList] = useState<User[]>(students);
 
-  function getJoinPendingStudents() {
-    const data = {
-      class_id: _class.id
-    };
+	const [pending_students_state, setPendingStudentState] = useState<ExtUser[]>();
 
-    axios.post(route('class.student.join.pending'), data)
-      .then((response) => {
-        setPendingStudentState(response.data);
-      });
-  }
+	function getJoinPendingStudents() {
+		const data = {
+			class_id: _class.id
+		};
 
-  useEffect(() => {
-    setPendingStudentState(pending_students);
-  }, [pending_students]);
+		axios.post(route('class.student.join.pending'), data)
+			.then((response) => {
+				setPendingStudentState(response.data);
+			});
+	}
 
-  return (
-    <AuthenticatedLayout
-      user={auth.user}
-    >
-      <Layout _class={_class} active_tab='students'>
-        <>
-          <div className='mb-5'>
-            <input type="search" placeholder='Type student number to search' className='w-1/2' />
-            <FormDialog
-              title="Notification"
-              size={'full'}
-              description={
-                <div className='mb-4'>
-                  {pending_students_state?.length} {pending_students_state && (pending_students_state.length > 1 ? "students" : "student")} wants to join your class.
-                </div>
-              }
-              dialog_button={
-                <div className='inline-block'>
-                  <IconButton aria-label="Example">
-                    <Badge badgeContent={pending_students_state?.length} color="error" max={999}>
-                      {/* <MailIcon color="action" /> */}
-                      <NotificationsIcon fontSize='medium' color='primary' />
-                      {/* <Button>
-                      </Button> */}
-                    </Badge>
-                  </IconButton>
-                </div>
-              }
-            >
-              <>
-                {pending_students_state?.map((student, index) => (
-                  <PendingStudent student={student} key={index} index={index} callback={getJoinPendingStudents} />
-                ))}
-              </>
-            </FormDialog>
-          </div>
-          {students.map((student) => (
-            <div className="flex justify-evenly mb-5">
-              <div className='w-full'>
-                <QRCode
-                  bgColor='white'
-                  fgColor='#000000'
-                  value={student.student_number}
-                  size={80}
-                  level='H'
-                />
-                <span className='text-xs'>{student.last_name}, {student.first_name}</span>
-              </div>
-              <div className='w-full'>
-                {student.student_number}
-              </div>
-              <div className='w-full'>
-                {student.last_name}
-              </div>
-              <div className='w-full'>
-                {student.first_name}
-              </div>
-              <div className='w-full'>
-                {student.middle_name}
-              </div>
-              <div className='w-full'>
-                <Course course={student.course} />
-              </div>
-            </div>
-          ))}
+	function searchStudent(e: any) {
+		setStudentList(students.filter((student: User) => {
+			return student.student_number.toLowerCase().includes(e.target.value.toLowerCase())
+				|| student.last_name.toLowerCase().includes(e.target.value.toLowerCase())
+				|| student.first_name.toLowerCase().includes(e.target.value.toLowerCase())
+				|| student.middle_name.toLowerCase().includes(e.target.value.toLowerCase())
+				;
+		}))
+	}
 
-          {students.length <= 0 &&
-            <Alert severity='info'>
-              No student has been added. Instruct your students to register and join to your class. You can also manually add student from excel file or search for student and add them to your class.
-            </Alert>
-          }
-        </>
-      </Layout>
-    </AuthenticatedLayout>
-  )
+	useEffect(() => {
+		setPendingStudentState(pending_students);
+	}, [pending_students]);
+
+	return (
+		<AuthenticatedLayout
+			user={auth.user}
+		>
+			<Layout _class={_class} active_tab='students'>
+				<>
+					<div className='mb-5 flex gap-2 lg:gap-0 items-center'>
+						<div className='w-auto lg:w-1/2'>
+							<Link href={`/class/${_class.id}/open/students/add`}>
+								<IconButton aria-label="Example">
+									<ColorProvider color='#6b7280'>
+										<GroupAddRoundedIcon fontSize='medium' color='primary' />
+									</ColorProvider>
+								</IconButton>
+							</Link>
+						</div>
+						<div className='w-full lg:w-full'>
+							{/* <input type="text" placeholder='Type student number to search' className='w-full border-2 hover:border-red-100 hover:ring-0 outline-0' /> */}
+							<SearchInput onChange={searchStudent} placeholder="Search student" />
+						</div>
+						<div className='w-auto lg:w-1/2 text-right'>
+							<FormDialog
+								title="Notification"
+								size={'full'}
+								description={
+									<div className='mb-4'>
+										{pending_students_state?.length} {pending_students_state && (pending_students_state.length > 1 ? "students" : "student")} wants to join your class.
+									</div>
+								}
+								dialog_button={
+									<div className='inline-block'>
+										<IconButton aria-label="Example">
+											<Badge badgeContent={pending_students_state?.length} color="error" max={999}>
+												<ColorProvider color='#6b7280'>
+													<NotificationsIcon fontSize='medium' color='primary' />
+												</ColorProvider>
+											</Badge>
+										</IconButton>
+									</div>
+								}
+							>
+								<>
+									{pending_students_state?.map((student, index) => (
+										<PendingStudent student={student} key={index} index={index} callback={getJoinPendingStudents} />
+									))}
+								</>
+							</FormDialog>
+						</div>
+					</div>
+					<div>
+						<StudentsTable _class={_class} students={student_list} />
+					</div>
+
+					{students.length <= 0 &&
+						<Alert severity='info'>
+							No student has been added. Instruct your students to register and join to your class. You can also manually add student from excel file or search for student and add them to your class.
+						</Alert>
+					}
+				</>
+			</Layout>
+		</AuthenticatedLayout>
+	)
 }

@@ -17,7 +17,7 @@ export type PageProps<T extends Record<string, unknown> = Record<string, unknown
     };
 };
 
-export interface Class {
+export type Class = {
     id: number;
     name: string;
     semester: number;
@@ -29,7 +29,7 @@ export interface Class {
     faculty: User;
 }
 
-export interface Subject {
+export type Subject = {
     id: number;
     code: string;
     title: string;
@@ -37,31 +37,48 @@ export interface Subject {
     units_lab: number;
 }
 
-export interface Activity {
+export type Activity = {
     id: number;
     class: Class;
     name: string;
     max_score: number;
     type: string;
+    date: string;
+    time: string;
 }
 
-export interface Score {
+export type Score = {
     id: number;
     activity: Activity;
     student: User;
     score: number;
 }
 
-export interface GradingSystem {
+export type GradingSystem = {
     id: number;
     subject: Subject;
     component: string;
     weight: number;
 }
 
-export interface ClassGradingSystem {
+export type ClassGradingSystem = {
     id: number;
     class: Class;
     component: string;
     weight: number;
+}
+
+export type CreditScore = {
+    id: number;
+    student_id: number;
+    points: number;
+    history: CreditScoreHistory[];
+}
+export type CreditScoreHistory = {
+    id: number;
+    credit_score_id: number;
+    points: number;
+    mode: string;
+    date: string;
+    date_removed: string;
 }

@@ -1,4 +1,3 @@
-
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import type { PageProps, Class, Activity } from '@/types';
@@ -6,6 +5,7 @@ import Layout from '../Layout';
 import Button from '@mui/material/Button';
 import InputError from '@/Components/InputError';
 import { grading_system_component } from '@/lib/data';
+import { SnackbarProvider, enqueueSnackbar } from 'notistack';
 
 interface Props extends PageProps {
     _class: Class;
@@ -16,21 +16,28 @@ interface Props extends PageProps {
 
 
 export default function ActivityPage({ _class, activity, grading_systems, activity_id, auth }: Props) {
+    // const { enqueueSnackbar } = useSnackbar();
 
     const { data, setData, post, reset, processing, errors } = useForm({
         id: activity_id,
         class: _class.id,
         name: activity?.name || "",
         max_score: activity?.max_score || "",
-        type: activity?.type || ""
+        type: activity?.type || "",
+        message: ""
     });
 
     function createActivity(){
         console.log(data);
         post(route('class.activity.update'), {
             onSuccess: () => {
-                console.log('created');
+                const message = activity_id == 0 ? "Saved successfully." : "Updated successfully.";
+                enqueueSnackbar(message, { variant: "success" });
                 
+            },
+            onError: () => {
+                const message = activity_id == 0 ? "Failed to save activity." : "Failed to update activity.";
+                enqueueSnackbar(message, {variant: "error"});
             }
         })
         
@@ -68,9 +75,11 @@ export default function ActivityPage({ _class, activity, grading_systems, activi
                         <InputError message={errors.type} />
                     </div>
                     <div className='mb-2'>
-                        <Button variant='contained' onClick={createActivity}>Create</Button>
+                        <Button variant='contained' onClick={createActivity} disabled={processing}>
+                            {activity_id == 0 ? (processing ? "Saving..." : "Save") : (processing ? "Updating..." : "Update")}
+                        </Button>
                     </div>
-
+                    <SnackbarProvider maxSnack={3} autoHideDuration={5000} />
                 </>
             </Layout>
         </AuthenticatedLayout>

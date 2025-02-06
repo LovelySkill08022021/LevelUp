@@ -53,12 +53,12 @@ export default function StudentClass({ classes }: { classes: Class[] }) {
         { field: 'faculty', headerName: 'Faculty', width: 200 },
         // { field: 'year_level', headerName: 'Year Level', width: 100 },
         // { field: 'section', headerName: 'Section', width: 70 },
-        { field: 'action', headerName: 'Action', width: 140, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
+        // { field: 'action', headerName: 'Action', width: 140, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
 
-            return (
-                <StudentClassJoinButton _class={row}  />
-            )
-        } },
+        //     return (
+        //         <StudentClassJoinButton _class={row}  />
+        //     )
+        // }},
     ];
 
     const rows: any = classes.map((_class) => {

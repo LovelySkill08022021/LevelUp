@@ -17,7 +17,7 @@ export default function Dashboard({ auth }: PageProps) {
                 <Card>
                     <div className="p-6 text-gray-900">You're logged in!</div>
                     <div>
-                        <Chart />
+                        {/* <Chart /> */}
                     </div>
                 </Card>
             </ContentLayout>

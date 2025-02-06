@@ -6,6 +6,9 @@ import { Link, useForm } from '@inertiajs/react'
 import Menu from '@/Components/system/Menu'
 import IconButton from '@mui/material/IconButton'
 import MoreVertIcon from '@mui/icons-material/MoreVert';
+import EditIcon from '@mui/icons-material/Edit';
+import StarRoundedIcon from '@mui/icons-material/StarRounded';
+
 import {
     DataGrid,
     GridColDef,
@@ -38,11 +41,11 @@ export default function SubjectBlock({ subjects }: { subjects: Subject[] }) {
     }
 
     const columns: GridColDef[] = [
-        { field: 'code', headerName: 'Code', width: 130 },
-        { field: 'title', headerName: 'Title', width: 400 },
-        { field: 'units_lec', headerName: 'Units (Lec)', width: 150 },
-        { field: 'units_lab', headerName: 'Units (Lab)', width: 400 },
-        { field: 'action', headerName: 'Action', width: 70, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
+        { field: 'code', headerName: 'Code', minWidth: 130 },
+        { field: 'title', headerName: 'Title', flex: 0, minWidth: 400 },
+        { field: 'units_lec', headerName: 'Units (Lec)', flex: 0, minWidth: 150 },
+        { field: 'units_lab', headerName: 'Units (Lab)', flex: 0, minWidth: 150 },
+        { field: 'action', headerName: '', flex: 100, minWidth: 70, align: 'right', headerAlign: 'right', disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
             return (
                 <Menu
                     buttonlabel={
@@ -51,8 +54,8 @@ export default function SubjectBlock({ subjects }: { subjects: Subject[] }) {
                         </IconButton>
                     }
                     menuitems={[
-                        {label: "Edit", link: `/subject/${row.id}`},
-                        {label: "Grading System", link: `/subject/${row.id}/gradingsystem`},
+                        {label: "Edit", link: `/subject/${row.id}`, icon: <EditIcon fontSize='small' />},
+                        {label: "Grading System", link: `/subject/${row.id}/gradingsystem`, icon: <StarRoundedIcon fontSize='small' />},
                         // {label: "Delete", action: () => deleteSubject(row)},
                     ]}
                 />

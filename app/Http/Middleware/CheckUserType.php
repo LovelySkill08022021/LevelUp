@@ -17,7 +17,6 @@ class CheckUserType
     public function handle(Request $request, Closure $next): Response
     {
         if (Auth::user()->user_type === 'student') {
-            // You can redirect or return a forbidden response here
             return redirect('/dashboard')->with('error', 'Unauthorized access.');
         }
 

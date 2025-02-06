@@ -8,16 +8,17 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
 interface Props {
+    size?: any;
     isopen: boolean;
     title?: string | React.ReactNode;
     description?: string | React.ReactNode;
     dialog_button: React.ReactNode;
     children: React.ReactNode;
-    submit_label: React.ReactNode;
-    onSubmitFunction: (formJson: any) => void;
+    submit_label?: React.ReactNode;
+    onSubmitFunction?: (formJson: any) => void;
 }
 
-export default function FormDialog({title, description, dialog_button, isopen, children, submit_label, onSubmitFunction } : Props) {
+export default function FormDialog({ size = 'md', title, description, dialog_button, isopen, children, submit_label, onSubmitFunction }: Props) {
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -29,12 +30,12 @@ export default function FormDialog({title, description, dialog_button, isopen, c
     };
 
     React.useEffect(() => {
-        if(isopen){
+        if (isopen) {
             handleClickOpen();
         } else {
             handleClose();
         }
-    },[isopen]);
+    }, [isopen]);
 
     return (
         <React.Fragment>
@@ -43,7 +44,8 @@ export default function FormDialog({title, description, dialog_button, isopen, c
             </span>
             <Dialog
                 fullWidth={true}
-                maxWidth={'sm'}
+                fullScreen={size == 'full' ? true : false}
+                maxWidth={size}
                 open={open}
                 onClose={handleClose}
                 PaperProps={{
@@ -53,8 +55,10 @@ export default function FormDialog({title, description, dialog_button, isopen, c
                         const formData = new FormData(event.currentTarget);
                         const formJson = Object.fromEntries((formData as any).entries());
                         // const email = formJson.email;
-                        onSubmitFunction(formJson);
-                        
+                        if (onSubmitFunction) {
+                            onSubmitFunction(formJson);
+                        }
+
                         handleClose();
                     },
                 }}
@@ -67,8 +71,12 @@ export default function FormDialog({title, description, dialog_button, isopen, c
                     {children}
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Cancel</Button>
-                    <Button type="submit">{submit_label}</Button>
+                    {onSubmitFunction && (
+                        <>
+                            <Button onClick={handleClose}>Cancel</Button>
+                            <Button type="submit">{submit_label}</Button>
+                        </>
+                    )}
                 </DialogActions>
             </Dialog>
         </React.Fragment>

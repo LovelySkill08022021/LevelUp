@@ -83,7 +83,7 @@ export default function ClassGradingSystemPage({ _class, current_class_grading_s
                     <div className='mt-8'>
                         <div className="text-lg font-semibold mb-5">{_class.name}</div>
                         <div className='mb-3'>
-                            <Button variant='contained' onClick={useSubjectGradingSystem}>Use Subject Grading</Button>
+                            <Button sx={{textTransform: "none"}} variant='contained' onClick={useSubjectGradingSystem}>Use Subject Grading</Button>
                         </div>
                         <ClassGradingSystemEditor _class={_class} initial_grading_systems={initial_grading_systems} getGradingSystem={getGradingSystem} />
                         

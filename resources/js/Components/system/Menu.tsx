@@ -3,12 +3,14 @@ import Button from '@mui/material/Button';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { Link } from '@inertiajs/react';
+import EditIcon from '@mui/icons-material/Edit';
 
 // {label, }
 
 interface MenuItemType { 
-    link?: string;
     label: string;
+    link?: string;
+    icon?: React.ReactNode;
     action?: () => void;
 }
 
@@ -36,18 +38,35 @@ export default function BasicMenu({menuitems, buttonlabel}: Props){
         setAnchorEl(null);
     };
 
+    function MenuItemContent({item}: {item: MenuItemType}){
+        return (
+            <div className='text-md w-full flex items-center me-10'>
+                <div className='w-8 text-gray-500 me'>
+                    {item.icon && item.icon}
+                </div>
+                <div className=''>
+                    {item.label}
+                </div>
+            </div>
+        )
+    }
+
     function CustomMenu({item}: {item: MenuItemType}){
         
         if(item.link){
             return (
                 <Link href={item.link || ""}>
-                    <MenuItem onClick={() => handleClose()}>{item.label}</MenuItem>
+                    <MenuItem onClick={() => handleClose()}>
+                        <MenuItemContent item={item} />
+                    </MenuItem>
                 </Link>
             )
         }
         
         return (
-            <MenuItem onClick={() => handleClose(item.action)}>{item.label}</MenuItem>
+            <MenuItem onClick={() => handleClose(item.action)}>
+                <MenuItemContent item={item} />
+            </MenuItem>
         )
     }
 
@@ -64,12 +83,22 @@ export default function BasicMenu({menuitems, buttonlabel}: Props){
             </span>
             <Menu
                 id="basic-menu"
+                elevation={1}
                 anchorEl={anchorEl}
                 open={open}
                 onClose={handleMenuClose}
                 MenuListProps={{
                     'aria-labelledby': 'basic-button',
                 }}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right',
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                sx={{'marginTop': '12px'}}
             >
                 {menuitems.map((item: MenuItemType) => (
                     <CustomMenu key={item.label} item={item} />

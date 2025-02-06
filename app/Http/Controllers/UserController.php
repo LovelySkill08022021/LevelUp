@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Inertia\Inertia;
 
 class UserController extends Controller
 {
@@ -18,5 +20,13 @@ class UserController extends Controller
             "email" => Auth()->user()->email,
             "email_verified_at" => Auth()->user()->email_verified_at,
         ];
+    }
+
+    public function getStudents(){
+        $students = User::where('user_type', 'student')->get();
+
+        return Inertia::render("Students/Page", [
+            "students" => $students
+        ]);
     }
 }

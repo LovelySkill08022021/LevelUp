@@ -15,38 +15,43 @@ import {
     GridPagination,
     useGridApiContext,
     useGridSelector,
- } from '@mui/x-data-grid';
- import MuiPagination  from '@mui/material/Pagination';
- import { TablePaginationProps } from '@mui/material/TablePagination';
+} from '@mui/x-data-grid';
+import MuiPagination from '@mui/material/Pagination';
+import { TablePaginationProps } from '@mui/material/TablePagination';
 
 
 
 export default function ActivityTable({ _class, activities }: { _class: Class, activities: Activity[] }) {
 
     const columns: GridColDef[] = [
-        { field: 'class', headerName: 'Scan', width: 100, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
-            return (
-                <Link href={`/class/${_class.id}/open/activity/${row.id}/scan`}>
-                    <QrCodeScannerIcon />
-                </Link>
-            )}
+        {
+            field: 'class', headerName: 'Scan', flex: 0, minWidth: 60, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
+                return (
+                    <Link href={`/class/${_class.id}/open/activity/${row.id}/scan`}>
+                        <QrCodeScannerIcon />
+                    </Link>
+                )
+            }
         },
-        { field: 'name', headerName: 'Activity Name', width: 300 },
-        { field: 'max_score', headerName: 'Max Score', width: 150 },
-        { field: 'type', headerName: 'Type', width: 400 },
-        { field: 'action', headerName: 'Action', width: 70, disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
-            return (
-                <Menu
-                    buttonlabel={
-                        <IconButton aria-label="Example">
-                            <MoreVertIcon />
-                        </IconButton>
-                    }
-                    menuitems={[
-                        {label: "Edit", link: `/class/${_class.id}/open/activity/${row.id}`},
-                    ]}
-                />
-            )}
+        { field: 'name', headerName: 'Activity Name', minWidth: 300 },
+        { field: 'max_score', headerName: 'Max Score', flex: 0, minWidth: 150 },
+        { field: 'type', headerName: 'Type', flex: 0, minWidth: 110 },
+        { field: 'date', headerName: 'Date', flex: 0, minWidth: 200 },
+        {
+            field: 'action', headerName: '', flex: 1, minWidth: 70, align: 'right', headerAlign: 'right', disableColumnMenu: true, sortable: false, resizable: false, renderCell: (row) => {
+                return (
+                    <Menu
+                        buttonlabel={
+                            <IconButton aria-label="Example">
+                                <MoreVertIcon />
+                            </IconButton>
+                        }
+                        menuitems={[
+                            { label: "Edit", link: `/class/${_class.id}/open/activity/${row.id}` },
+                        ]}
+                    />
+                )
+            }
         },
     ];
 
@@ -55,10 +60,11 @@ export default function ActivityTable({ _class, activities }: { _class: Class, a
             id: activity.id,
             name: activity.name,
             max_score: activity.max_score,
-            type: activity.type
+            type: activity.type,
+            date: `${activity.date}, ${activity.time}`,
         }
     });
-    
+
     function Pagination({
         page,
         onPageChange,
@@ -66,7 +72,7 @@ export default function ActivityTable({ _class, activities }: { _class: Class, a
     }: Pick<TablePaginationProps, 'page' | 'onPageChange' | 'className'>) {
         const apiRef = useGridApiContext();
         const pageCount = useGridSelector(apiRef, gridPageCountSelector);
-    
+
         return (
             <MuiPagination
                 color="primary"
@@ -98,10 +104,10 @@ export default function ActivityTable({ _class, activities }: { _class: Class, a
                 pageSizeOptions={[5, 10, 50, 100]}
                 slotProps={{
                     loadingOverlay: {
-                      variant: 'skeleton',
-                      noRowsVariant: 'skeleton',
+                        variant: 'skeleton',
+                        noRowsVariant: 'skeleton',
                     },
-                  }}
+                }}
                 sx={{ border: 0 }}
             />
         </>
