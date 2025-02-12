@@ -10,4 +10,11 @@ export default defineConfig({
         }),
         react(),
     ],
+    // server: {
+
+    //     host: '0.0.0.0', // Access your development server from any IP on the network [3, 5, 10]
+    //     hmr: {
+    //         host: '10.10.50.74',  // Replace with your actual local network IP  // Optional: Ensure it matches the server port
+    //     }
+    //   }
 });

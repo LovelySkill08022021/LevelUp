@@ -1,0 +1,5 @@
+localhost {
+    root * /mnt/c/Users/markj/Documents/SoftwareEngineering/Laravel/LevelUpDev/LevelUp/public
+    php_fastcgi 127.0.0.1:9000
+    file_server
+}

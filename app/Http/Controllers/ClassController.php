@@ -369,6 +369,12 @@ class ClassController extends Controller
             return 'no_student';
         }
 
+        $not_a_class_member = ClassMember::where([['student_id', $student[0]->id], ['class_id', $request->class_id]])->exists();
+
+        if(!$not_a_class_member){
+            return "not_a_class_member";
+        }
+
         $student_has_score = Score::where([['activity_id', $request->activity_id],['student_id', $student[0]->id]])->exists();
         
         if($student_has_score){
@@ -386,13 +392,28 @@ class ClassController extends Controller
         }
 
         if($student[0]->user_type != 'student'){
-            return "This user is not a student. Please check the entered student number.";
+            return [
+                "message" => "This user is not a student. Please check the entered student number.",
+                "severity" => "error",
+            ];
         }
+
+        $not_a_class_member = ClassMember::where([['student_id', $student[0]->id], ['class_id', $request->class_id]])->exists();
+        if(!$not_a_class_member){
+            return [
+                "message" => "Not a class member.",
+                "severity" => "error",
+            ];
+        }
+
 
         $student_has_score = Score::where([['activity_id', $request->activity_id],['student_id', $student[0]->id]])->exists();
         
         if($student_has_score){
-            return "The student already have a score in the activity.";
+            return [
+                "message" => "The student already have a score in the activity.",
+                "severity" => "info",
+            ];
         }
         
         $score = new Score;
@@ -402,10 +423,16 @@ class ClassController extends Controller
         $res = $score->save();
 
         if(!$res){
-            return "Failed to save score, please try again.";
+            return [
+                "message" => "Failed to save score, please try again.",
+                "severity" => "error",
+            ];
         }
 
-        return "success";
+        return [
+            "message" => "Saved.",
+            "severity" => "success",
+        ];
     }
 
     public function studentsPage(int $class_id){

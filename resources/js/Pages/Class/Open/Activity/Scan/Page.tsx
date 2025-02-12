@@ -30,12 +30,19 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
     function findStudent(std_no: string){
         const data = {
             std_no: std_no,
-            activity_id: activity.id
+            activity_id: activity.id,
+            class_id: _class.id
         }
         axios.post(route('class.activity.scan.find_student'), data)
         .then((response) => {
             if(response.data == "no_student"){
                 enqueueSnackbar(`No student found. It is possible that the student with a ${qr_code_value} student number is not yet registered`, {variant: "warning"});
+
+                return;
+            }
+
+            if(response.data == "not_a_class_member"){
+                enqueueSnackbar(`Not a class member.`, {variant: "error"});
 
                 return;
             }
@@ -78,7 +85,9 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
     const {data, setData, reset} = useForm({
         student_number: "",
         score: "",
-        activity_id: activity.id
+        activity_id: activity.id,
+        class_id: _class.id
+
     });
 
     function saveStudentScore(){
@@ -101,7 +110,7 @@ export default function ActivityPage({ _class, activity, students, auth }: Props
 
 
                 // alert(response.data);
-                enqueueSnackbar(response.data, {variant: "info"});
+                enqueueSnackbar(response.data.message, {variant: response.data.severity});
                 setOpenForm(false);
                 setTimeout(() => {
                     setOpenForm(true);
