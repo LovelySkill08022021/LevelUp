@@ -387,8 +387,15 @@ class ClassController extends Controller
     public function saveScore(Request $request){
         $student = User::where('student_number', $request->student_number)->get();
         
+        // if(sizeof($student) <= 0){
+        //     return "No student found. It is possible that the student with a ($request->student_number) student number is not yet registered.";
+        // }
+
         if(sizeof($student) <= 0){
-            return "No student found. It is possible that the student with a ($request->student_number) student number is not yet registered.";
+            return [
+                "message" => "No student found. It is possible that the student with a ($request->student_number) student number is not yet registered.",
+                "severity" => "error",
+            ];
         }
 
         if($student[0]->user_type != 'student'){
