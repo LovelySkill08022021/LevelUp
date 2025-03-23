@@ -75,7 +75,7 @@ Route::get('/testmail', function () {
             "name" => "Juan Dela Cruz",
             "email" => "email@example.com",
         ],
-        "password" => "akjsd9873ih"
+        "password" => "NEwpasdaj"
     ];
  
     return new App\Mail\TestMail($details);
@@ -85,10 +85,10 @@ Route::get('/sendmail', function () {
     $details = (object)[
         "user" => (object)[
             "id" => 12,
-            "name" => "Juan Dela Cruz",
+            "name" => "Eric Wang",
             "email" => "email@example.com",
         ],
-        "password" => "akjsd9873ih"
+        "password" => "8734hiif89"
     ];
     
     $mail = new App\Mail\TestMail($details);
